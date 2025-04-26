@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthGuard AI - Predictive Healthcare Solutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <section class="hero">
+        <h1>HealthGuard AI</h1>
+        <p>Predictive Healthcare Analytics for Better Outcomes</p>
+    </section>
+
+    <div class="container">
+        <form class="analysis-form" id="healthForm">
+            <h2>Patient Health Analysis</h2>
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>Age</label>
+                    <input type="number" id="age" required>
+                </div>
+                <div class="input-group">
+                    <label>Weight (kg)</label>
+                    <input type="number" id="weight" required>
+                </div>
+                <div class="input-group">
+                    <label>Nutrition Level (1-10)</label>
+                    <input type="number" min="1" max="10" id="nutrition" required>
+                </div>
+                <div class="input-group">
+                    <label>Chronic Diseases</label>
+                    <select id="diseases" required>
+                        <option value="0">None</option>
+                        <option value="1">1-2</option>
+                        <option value="2">3+</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Lifestyle Factors</label>
+                    <select id="lifestyle" required>
+                        <option value="2">Healthy</option>
+                        <option value="1">Average</option>
+                        <option value="0">Unhealthy</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn">Analyze Health Risks</button>
+        </form>
+
+        <div class="result-card" id="resultCard">
+            <h3>Health Risk Assessment</h3>
+            <div class="risk-meter">
+                <div class="risk-fill" id="riskFill"></div>
+            </div>
+            <p id="riskPercentage"></p>
+            <p id="riskDescription"></p>
+            
+            <div class="recommendations-grid">
+                <div class="recommendation-card">
+                    <i class="fas fa-apple-alt"></i>
+                    <h4>Nutrition Plan</h4>
+                    <div id="feedingRecommendations"></div>
+                </div>
+                <div class="recommendation-card">
+                    <i class="fas fa-clock"></i>
+                    <h4>Longevity Estimate</h4>
+                    <p id="lifespanEstimate"></p>
+                    <small>Based on current lifestyle patterns</small>
+                </div>
+            </div>
+
+            <div class="disclaimer">
+                Note: This prediction is based on statistical models and should not be considered medical advice.
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <i class="fas fa-heartbeat feature-icon"></i>
+                <h4>Nutrition Analysis</h4>
+                <p>Advanced AI-powered dietary recommendations based on individual health metrics</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-brain feature-icon"></i>
+                <h4>Predictive Analytics</h4>
+                <p>Machine learning models trained on millions of health data points</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-shield-alt feature-icon"></i>
+                <h4>Preventive Care</h4>
+                <p>Early warning system for potential health risks and preventive measures</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2023 HealthGuard AI. Ethical AI for Better Healthcare</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
