@@ -3,55 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HealthGuard AI - Predictive Healthcare Solutions</title>
+    <title>HealthGuard AI - Predictive Healthcare</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic&family=Noto+Sans+SC&family=Noto+Sans+Devanagari&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+    <div class="language-switcher">
+        <select id="languageSelect">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="it">Italiano</option>
+            <option value="pt">Português</option>
+            <option value="ar">العربية</option>
+            <option value="zh">中文</option>
+            <option value="hi">हिन्दी</option>
+            <option value="vi">Tiếng Việt</option>
+            <option value="ru">Русский</option>
+        </select>
+    </div>
+
     <section class="hero">
-        <h1>HealthGuard AI</h1>
-        <p>Predictive Healthcare Analytics for Better Outcomes</p>
+        <div class="hero-content">
+            <h1 data-translate="title">HealthGuard AI</h1>
+            <p data-translate="subtitle">Predictive Healthcare Analytics</p>
+            <div class="animated-medical-icons">
+                <i class="fas fa-heartbeat"></i>
+                <i class="fas fa-brain"></i>
+                <i class="fas fa-dna"></i>
+            </div>
+        </div>
     </section>
 
     <div class="container">
         <form class="analysis-form" id="healthForm">
-            <h2>Patient Health Analysis</h2>
-            <div class="form-grid">
-                <div class="input-group">
-                    <label>Age</label>
-                    <input type="number" id="age" required>
-                </div>
-                <div class="input-group">
-                    <label>Weight (kg)</label>
-                    <input type="number" id="weight" required>
-                </div>
-                <div class="input-group">
-                    <label>Nutrition Level (1-10)</label>
-                    <input type="number" min="1" max="10" id="nutrition" required>
-                </div>
-                <div class="input-group">
-                    <label>Chronic Diseases</label>
-                    <select id="diseases" required>
-                        <option value="0">None</option>
-                        <option value="1">1-2</option>
-                        <option value="2">3+</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>Lifestyle Factors</label>
-                    <select id="lifestyle" required>
-                        <option value="2">Healthy</option>
-                        <option value="1">Average</option>
-                        <option value="0">Unhealthy</option>
-                    </select>
+            <!-- Step 1: Personal Information -->
+            <div class="form-step active" data-step="1">
+                <h2 data-translate="personal_info">Personal Information</h2>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label data-translate="gender">Gender</label>
+                        <select id="gender" required>
+                            <option value="male" data-translate="male">Male</option>
+                            <option value="female" data-translate="female">Female</option>
+                            <option value="other" data-translate="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label data-translate="age">Age</label>
+                        <input type="number" id="age" required>
+                    </div>
+                    <div class="input-group">
+                        <label data-translate="email">Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="input-group">
+                        <label data-translate="region">Region</label>
+                        <select id="region" required>
+                            <option value="europe" data-translate="europe">Europe</option>
+                            <option value="asia" data-translate="asia">Asia</option>
+                            <option value="america" data-translate="america">America</option>
+                            <option value="africa" data-translate="africa">Africa</option>
+                        </select>
+                    </div>
                 </div>
             </div>
-            <button type="submit" class="btn">Analyze Health Risks</button>
+
+            <!-- Step 2: Health Information -->
+            <div class="form-step" data-step="2">
+                <h2 data-translate="health_info">Health Information</h2>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label data-translate="weight">Weight (kg)</label>
+                        <input type="number" id="weight" required>
+                    </div>
+                    <div class="input-group">
+                        <label data-translate="nutrition">Nutrition Level (1-10)</label>
+                        <input type="number" min="1" max="10" id="nutrition" required>
+                    </div>
+                    <div class="input-group">
+                        <label data-translate="alcohol">Alcohol Consumption</label>
+                        <select id="alcohol" required>
+                            <option value="0" data-translate="never">Never</option>
+                            <option value="1" data-translate="occasionally">Occasionally</option>
+                            <option value="2" data-translate="regularly">Regularly</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label data-translate="exercise">Exercise Frequency</label>
+                        <select id="exercise" required>
+                            <option value="3" data-translate="daily">Daily</option>
+                            <option value="2" data-translate="weekly">Weekly</option>
+                            <option value="1" data-translate="monthly">Monthly</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Additional Information -->
+            <div class="form-step" data-step="3">
+                <h2 data-translate="additional_info">Additional Information</h2>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label data-translate="profession">Profession</label>
+                        <input type="text" id="profession" required>
+                    </div>
+                    <div class="input-group">
+                        <label data-translate="sleep">Daily Sleep Hours</label>
+                        <input type="number" min="0" max="24" id="sleep" required>
+                    </div>
+                    <div class="input-group">
+                        <label data-translate="transport">Transportation</label>
+                        <select id="transport" required>
+                            <option value="car" data-translate="car">Car</option>
+                            <option value="public" data-translate="public">Public</option>
+                            <option value="walk" data-translate="walk">Walk/Bike</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label data-translate="environment">Living Environment</label>
+                        <select id="environment" required>
+                            <option value="city" data-translate="city">City</option>
+                            <option value="countryside" data-translate="countryside">Countryside</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-navigation">
+                <button type="button" class="btn prev-btn" data-translate="previous">Previous</button>
+                <button type="button" class="btn next-btn" data-translate="next">Next</button>
+                <button type="submit" class="btn submit-btn" data-translate="analyze">Analyze</button>
+            </div>
         </form>
 
         <div class="result-card" id="resultCard">
-            <h3>Health Risk Assessment</h3>
+            <h3 data-translate="risk_assessment">Health Risk Assessment</h3>
             <div class="risk-meter">
                 <div class="risk-fill" id="riskFill"></div>
             </div>
@@ -61,43 +152,47 @@
             <div class="recommendations-grid">
                 <div class="recommendation-card">
                     <i class="fas fa-apple-alt"></i>
-                    <h4>Nutrition Plan</h4>
+                    <h4 data-translate="nutrition_plan">Nutrition Plan</h4>
                     <div id="feedingRecommendations"></div>
                 </div>
                 <div class="recommendation-card">
                     <i class="fas fa-clock"></i>
-                    <h4>Longevity Estimate</h4>
+                    <h4 data-translate="longevity">Longevity Estimate</h4>
                     <p id="lifespanEstimate"></p>
-                    <small>Based on current lifestyle patterns</small>
+                    <small data-translate="lifestyle_based">Based on current lifestyle</small>
                 </div>
             </div>
 
-            <div class="disclaimer">
-                Note: This prediction is based on statistical models and should not be considered medical advice.
+            <div class="pdf-generator">
+                <button class="btn" onclick="generatePDF()" data-translate="download_pdf">Download Report</button>
+            </div>
+
+            <div class="disclaimer" data-translate="disclaimer">
+                Note: Predictive models only - not medical advice
             </div>
         </div>
 
         <div class="features">
             <div class="feature-card">
                 <i class="fas fa-heartbeat feature-icon"></i>
-                <h4>Nutrition Analysis</h4>
-                <p>Advanced AI-powered dietary recommendations based on individual health metrics</p>
+                <h4 data-translate="nutrition_analysis">Nutrition Analysis</h4>
+                <p data-translate="nutrition_desc">AI-powered dietary recommendations</p>
             </div>
             <div class="feature-card">
                 <i class="fas fa-brain feature-icon"></i>
-                <h4>Predictive Analytics</h4>
-                <p>Machine learning models trained on millions of health data points</p>
+                <h4 data-translate="predictive">Predictive Analytics</h4>
+                <p data-translate="predictive_desc">ML models with millions of data points</p>
             </div>
             <div class="feature-card">
                 <i class="fas fa-shield-alt feature-icon"></i>
-                <h4>Preventive Care</h4>
-                <p>Early warning system for potential health risks and preventive measures</p>
+                <h4 data-translate="preventive">Preventive Care</h4>
+                <p data-translate="preventive_desc">Early health risk detection</p>
             </div>
         </div>
     </div>
 
     <footer>
-        <p>© 2023 HealthGuard AI. Ethical AI for Better Healthcare</p>
+        <p data-translate="copyright">© 2023 HealthGuard AI</p>
     </footer>
 
     <script src="app.js"></script>
