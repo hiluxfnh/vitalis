@@ -1,4 +1,4 @@
-// app.js — Complete Corrected Version
+// app.js — Final Working Version
 document.addEventListener('DOMContentLoaded', async () => {
   // --- Application State ---
   let currentStep = 1;
@@ -15,8 +15,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const riskDescription = document.getElementById('riskDescription');
   const languageSelect = document.getElementById('languageSelect');
   const lifespanEstimate = document.getElementById('lifespanEstimate');
-  
-  // New Metrics Elements
   const cardiovascularScore = document.getElementById('cardiovascularScore');
   const cardiovascularRisks = document.getElementById('cardiovascularRisks');
   const metabolicAge = document.getElementById('metabolicAge');
@@ -135,14 +133,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       alcohol: +document.getElementById('alcohol').value,
       smoking: document.getElementById('smoking').value,
       exercise: +document.getElementById('exercise').value,
-      exerciseType: Array.from(document.getElementById('exercise-type').selectedOptions).map(o => o.value),
+      exerciseType: Array.from(document.getElementById('exercise-type').selectedOptions).map(o => o.value) || [],
       stress: +document.getElementById('stress').value,
       sleep: +document.getElementById('sleep').value,
       diet: document.getElementById('diet').value,
       transport: document.getElementById('transport').value,
       environment: document.getElementById('environment').value,
       profession: document.getElementById('profession').value,
-      region: document.getElementById('region').value
+      region: document.getElementById('region').value,
+      name: document.getElementById('name').value
     };
   }
 
@@ -169,17 +168,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // --- Analysis Components ---
+  // --- Enhanced Analysis Components ---
   function analyzeNutrition(data) {
     const s = data.nutrition;
     const { diet, age, exercise } = data;
 
-    const proteins = {
-      omnivore: ['chicken', 'fish', 'eggs'],
-      vegetarian: ['tofu', 'lentils', 'quinoa'],
-      vegan: ['tempeh', 'chickpeas', 'spirulina'],
-      other: ['mixed sources']
-    }[diet];
+    const mealComponents = {
+      proteins: {
+        omnivore: ['Grilled chicken', 'Baked salmon', 'Boiled eggs'],
+        vegetarian: ['Tofu stir-fry', 'Lentil curry', 'Chickpea salad'],
+        vegan: ['Tempeh bowls', 'Black bean burgers', 'Edamame salads'],
+        other: ['Mixed protein sources']
+      },
+      carbs: ['Quinoa', 'Brown rice', 'Sweet potatoes', 'Whole wheat pasta'],
+      veggies: ['Leafy greens', 'Cruciferous veggies', 'Colorful vegetables'],
+      fats: ['Avocado', 'Nuts', 'Olive oil', 'Seeds']
+    };
+
+    const dailyMealPlan = {
+      breakfast: `${randomChoice(mealComponents.proteins[diet])} with ${randomChoice(mealComponents.carbs)}`,
+      lunch: `${randomChoice(mealComponents.proteins[diet])} with ${randomChoice(mealComponents.veggies)}`,
+      dinner: `${randomChoice(mealComponents.proteins[diet])} and ${randomChoice(mealComponents.fats)}`,
+      snacks: ['Fresh fruits', 'Yogurt', 'Mixed nuts']
+    };
 
     const calories = Math.round(
       (age < 30 ? 2000 : 1800) * 
@@ -187,50 +198,45 @@ document.addEventListener('DOMContentLoaded', async () => {
       (diet === 'vegan' ? 0.95 : 1)
     );
 
-    const mealPlan = [];
-    for (let i = 0; i < 7; i++) {
-      mealPlan.push(
-        `${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i]}: ` +
-        `${proteins[Math.floor(Math.random() * proteins.length)]} ` +
-        `with seasonal veggies (${calories} kcal)`
-      );
-    }
-
     return { 
       score: s,
       status: s >= 7 ? 'good' : s >= 4 ? 'fair' : 'poor',
       tips: [
-        `Focus on ${proteins.join(', ')} for protein`,
+        `Focus on ${mealComponents.proteins[diet].join(', ')} for protein`,
         `Aim for ${calories} kcal/day`,
         s < 5 ? 'Consider vitamin supplements' : ''
       ].filter(Boolean),
-      mealPlan
+      mealPlan: generateMealSchedule(dailyMealPlan),
+      mealStructure: dailyMealPlan,
+      hydrationTips: ['8 glasses water/day', 'Herbal teas', 'Limit sugary drinks'],
+      supplementSuggestions: getSupplements(data.diet)
     };
   }
 
   function analyzeExercise(data) {
     const frequency = data.exercise;
-    const tips = frequency >= 3
-      ? ['Excellent! Keep it varied.']
-      : frequency >= 2
-        ? ['Almost there! Aim for 3x/week.']
-        : frequency >= 1
-          ? ['Start with light walks.']
-          : ['Begin with short walks.'];
+    
+    const exerciseBank = {
+      cardio: ['Brisk walking', 'Cycling', 'Swimming', 'HIIT'],
+      strength: ['Bodyweight exercises', 'Resistance bands', 'Weight training'],
+      flexibility: ['Yoga', 'Pilates', 'Dynamic stretching']
+    };
 
-    const weeklyPlan = frequency >= 3
-      ? ['Mon: Cardio', 'Wed: Strength', 'Fri: Yoga']
-      : frequency >= 2
-        ? ['Tue: Cardio', 'Thu: Strength']
-        : frequency >= 1
-          ? ['Daily: 15-min walk']
-          : ['Daily: 10-min walk'];
+    const personalizedPlan = (data.exerciseType || []).reduce((plan, type) => {
+      plan[type] = exerciseBank[type].slice(0, frequency + 1);
+      return plan;
+    }, {});
+
+    const weeklyPlan = generateWeeklySchedule(data);
 
     return {
       frequency,
       status: frequency >= 3 ? 'excellent' : frequency >= 2 ? 'good' : frequency >= 1 ? 'fair' : 'poor',
-      tips,
-      weeklyPlan
+      tips: getExerciseTips(frequency),
+      weeklyPlan,
+      intensityLevel: calculateIntensity(data),
+      personalizedPlan,
+      recoveryTips: getRecoveryTipsArray(data.exerciseType)
     };
   }
 
@@ -240,10 +246,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       hours,
       status: hours >= 7 ? 'good' : hours >= 6 ? 'fair' : 'poor',
       tips: hours >= 7
-        ? ['Good sleep!']
+        ? ['Maintain consistent sleep schedule']
         : hours >= 6
-          ? ['Try for 7+ hours.']
-          : ['Improve bedtime routine.']
+          ? ['Limit screen time before bed']
+          : ['Consider sleep environment improvements'],
+      qualityFactors: [
+        hours < 6 && 'Consider sleep study',
+        data.stress > 5 && 'Practice relaxation techniques'
+      ].filter(Boolean)
     };
   }
 
@@ -253,10 +263,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       level,
       status: level <= 3 ? 'low' : level <= 6 ? 'moderate' : 'high',
       tips: level <= 3
-        ? ['Low stress!']
+        ? ['Maintain current stress management']
         : level <= 6
-          ? ['Moderate stress.']
-          : ['High stress—take breaks.']
+          ? ['Practice mindfulness exercises']
+          : ['Consider professional support'],
+      copingStrategies: [
+        'Deep breathing exercises',
+        'Time management techniques',
+        'Social support networking'
+      ]
     };
   }
 
@@ -266,8 +281,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         ? data.transport === 'walk' ? 10 : 20
         : 5,
       tips: data.environment === 'city'
-        ? ['Use air purifier', 'Avoid peak traffic']
-        : ['Ventilate indoors', 'Test water quality']
+        ? ['Use air purifier', 'Monitor AQI regularly']
+        : ['Test well water', 'Natural ventilation'],
+      improvementStrategies: [
+        'Indoor plants',
+        'HEPA air filters',
+        'Low-VOC cleaning products'
+      ]
     };
   }
 
@@ -282,7 +302,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateCardiovascularDisplay(results.cardiovascularHealth);
     updateMetabolicAgeDisplay(results.metabolicAge);
     updateNutritionDisplay(results.nutrition);
-    updateRecoveryDisplay(results.recoveryScore);
+    updateRecoveryDisplay(results.recoveryScore, results.exercise.recoveryTips);
     updateExerciseDisplay(results.exercise);
     updateLifespanDisplay(results.lifespan, results);
   }
@@ -312,7 +332,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     `;
     cardiovascularRisks.innerHTML = `
       <strong>${translations[lang]?.cardiovascular_risks || 'Potential Risks'}:</strong>
-      <ul>${data.risks.map(r => `<li>${r}</li>`).join('')}</ul>
+      <ul>${(data.risks || []).map(r => `<li>${r}</li>`).join('')}</ul>
     `;
   }
 
@@ -325,22 +345,61 @@ document.addEventListener('DOMContentLoaded', async () => {
       <i class="fas fa-bullseye"></i>
       ${data.tips[1] || ''}
     `;
+    
     mealPlanElement.innerHTML = `
-      <ul>${data.mealPlan.map(m => `<li>${m}</li>`).join('')}</ul>
+      <div class="meal-structure">
+        <h4>Daily Meal Plan</h4>
+        <p>Breakfast: ${data.mealStructure.breakfast}</p>
+        <p>Lunch: ${data.mealStructure.lunch}</p>
+        <p>Dinner: ${data.mealStructure.dinner}</p>
+        <p>Snacks: ${data.mealStructure.snacks.join(', ')}</p>
+      </div>
+      <div class="supplements">
+        <h4>Suggested Supplements</h4>
+        <ul>${(data.supplementSuggestions || []).map(s => `<li>${s}</li>`).join('')}</ul>
+      </div>
     `;
-    nutritionTips.innerHTML = data.tips.map(t => `<div class="tip">${t}</div>`).join('');
+    
+    nutritionTips.innerHTML = `
+      <h4>Nutrition Tips</h4>
+      <ul>${data.tips.map(t => `<li>${t}</li>`).join('')}</ul>
+      <div class="hydration">
+        <h4>Hydration Guide</h4>
+        <ul>${data.hydrationTips.map(h => `<li>${h}</li>`).join('')}</ul>
+      </div>
+    `;
   }
 
-  function updateRecoveryDisplay(score) {
+  function updateRecoveryDisplay(score, recoveryTips) {
     recoveryMeter.style.width = `${score}%`;
-    recoveryTips.textContent = getRecoveryTips(score);
+    recoveryTips.innerHTML = `
+      <p>${getRecoveryTips(score)}</p>
+      ${recoveryTips?.length > 0 ? 
+        `<ul>${recoveryTips.map(t => `<li>${t}</li>`).join('')}</ul>` : 
+        '<p>No specific recovery tips needed</p>'}
+    `;
   }
 
   function updateExerciseDisplay(data) {
     weeklyExercise.innerHTML = `
-      <ul>${data.weeklyPlan.map(e => `<li>${e}</li>`).join('')}</ul>
+      <h4>Weekly Schedule</h4>
+      <ul>${(data.weeklyPlan || []).map(day => `
+        <li>
+          <strong>${day.day}:</strong>
+          ${day.activity} (${day.duration} mins)
+        </li>
+      `).join('')}</ul>
     `;
-    exerciseTips.innerHTML = data.tips.map(t => `<div class="tip">${t}</div>`).join('');
+    
+    exerciseTips.innerHTML = `
+      <h4>Personalized Exercises</h4>
+      ${Object.entries(data.personalizedPlan || {}).map(([type, exercises]) => `
+        <div class="exercise-type">
+          <h5>${type.charAt(0).toUpperCase() + type.slice(1)}</h5>
+          <ul>${(exercises || []).map(e => `<li>${e}</li>`).join('')}</ul>
+        </div>
+      `).join('')}
+    `;
   }
 
   function updateLifespanDisplay(years, data) {
@@ -354,7 +413,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       data.nutrition.score >= 7 ? '🌱 Good Nutrition' : null,
       data.exercise.frequency >= 3 ? '💪 Regular Exercise' : null,
       data.stress.level <= 5 ? '😌 Low Stress' : null,
-      data.recoveryScore >= 75 ? '🛌 Good Recovery' : null
+      data.recoveryScore >= 75 ? '🛌 Good Recovery' : null,
+      data.environment === 'countryside' ? '🌳 Clean Environment' : null
     ].filter(Boolean);
 
     lifespanFactors.innerHTML = `
@@ -368,53 +428,143 @@ document.addEventListener('DOMContentLoaded', async () => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const lang = document.documentElement.lang;
-
+    const date = new Date().toLocaleDateString();
+    
+    // PDF Configuration
+    const primaryColor = '#2A5C82';
+    const secondaryColor = '#5DA9E9';
+    const margin = 15;
+    let yPosition = margin;
+    
+    // Add Header
+    doc.setFillColor(primaryColor);
+    doc.rect(0, 0, 210, 30, 'F');
     doc.setFontSize(18);
-    doc.text(translations[lang]?.health_report || 'Comprehensive Health Report', 20, 20);
-
-    // Risk Summary
+    doc.setTextColor(255);
+    doc.text(translations[lang]?.health_report || 'HealthGuard AI Report', margin, 20);
+    doc.setTextColor(0);
+    
+    // Add Personal Information Section
+    yPosition += 15;
     doc.setFontSize(12);
-    doc.text(`Health Risk Score: ${analysisResults.riskScore.toFixed(1)}%`, 20, 30);
-    doc.text(`Risk Level: ${riskDescription.textContent}`, 20, 38);
-
-    // Cardiovascular Health
-    doc.setFontSize(14);
-    doc.text('❤️ Cardiovascular Health', 20, 50);
-    doc.text(`Score: ${analysisResults.cardiovascularHealth.score.toFixed(0)} (${analysisResults.cardiovascularHealth.rating})`, 25, 60);
-    doc.text(`Risks: ${analysisResults.cardiovascularHealth.risks.join(', ')}`, 25, 68);
-
-    // Longevity Estimate
-    doc.setFontSize(14);
-    doc.text('⏳ Longevity Estimate', 20, 80);
-    doc.text(`Projected Lifespan: ${analysisResults.lifespan.toFixed(1)} years`, 25, 90);
-    doc.text(`Key Factors: ${lifespanFactors.textContent}`, 25, 98);
-
-    // Nutrition Plan
-    doc.setFontSize(14);
-    doc.text('🥗 Nutrition Plan', 20, 110);
-    doc.text(`Daily Target: ${analysisResults.nutrition.tips[1]}`, 25, 120);
-    doc.text('Sample Meal Plan:', 25, 128);
-    analysisResults.nutrition.mealPlan.slice(0, 5).forEach((meal, i) => {
-      doc.text(`- ${meal}`, 30, 136 + (i * 8));
+    doc.setTextColor(primaryColor);
+    doc.text(`${translations[lang]?.personal_info || 'Personal Information'}:`, margin, yPosition);
+    yPosition += 7;
+    
+    const personalInfo = [
+      `Name: ${userData.name || '_________________________'}`, // Added name field
+      `Age: ${userData.age}`,
+      `Gender: ${userData.gender}`,
+      `BMI: ${analysisResults.bmi.toFixed(1)}`,
+      `Region: ${userData.region}`
+    ];
+    
+    personalInfo.forEach((info, i) => {
+      doc.setTextColor(0);
+      doc.text(info, margin + 5, yPosition + (i * 7));
     });
-
-    doc.save('comprehensive-health-report.pdf');
-  };
-
-  window.generateQuickSummary = () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
     
-    doc.setFontSize(16);
-    doc.text('Quick Health Summary', 20, 20);
+    // Add Report Date
+    doc.setTextColor(100);
+    doc.setFontSize(10);
+    doc.text(`Report Date: ${date}`, 160, yPosition);
+    yPosition += personalInfo.length * 7 + 10;
     
+    // Main Content Sections
+    const sections = [
+      {
+        title: translations[lang]?.risk_assessment || 'Health Risk Assessment',
+        content: [
+          `${translations[lang]?.risk_label || 'Risk Score'}: ${analysisResults.riskScore.toFixed(1)}%`,
+          `Level: ${riskDescription.textContent}`
+        ],
+        color: primaryColor
+      },
+      {
+        title: translations[lang]?.cardiovascular_health || 'Cardiovascular Health',
+        content: [
+          `Score: ${analysisResults.cardiovascularHealth.score.toFixed(0)} (${analysisResults.cardiovascularHealth.rating})`,
+          `Risks: ${analysisResults.cardiovascularHealth.risks.join(', ')}`
+        ],
+        color: secondaryColor
+      },
+      {
+        title: translations[lang]?.longevity || 'Longevity Estimate',
+        content: [
+          `Projected Lifespan: ${analysisResults.lifespan.toFixed(1)} years`,
+          `Key Factors: ${lifespanFactors.textContent}`
+        ],
+        color: '#2A9D8F'
+      }
+    ];
+  
+    // Draw Content Sections
+    sections.forEach((section, index) => {
+      // Section Header
+      doc.setFillColor(section.color);
+      doc.rect(margin, yPosition, 180, 8, 'F');
+      doc.setTextColor(255);
+      doc.setFontSize(12);
+      doc.text(section.title, margin + 5, yPosition + 6);
+      
+      // Section Content
+      doc.setTextColor(0);
+      doc.setFontSize(10);
+      section.content.forEach((line, i) => {
+        doc.text(line, margin + 5, yPosition + 15 + (i * 7));
+      });
+      
+      // Add border
+      doc.setDrawColor(section.color);
+      doc.rect(margin, yPosition, 180, 15 + (section.content.length * 7));
+      
+      yPosition += 25 + (section.content.length * 7);
+      
+      // Add page break if needed
+      if(yPosition > 250 && index < sections.length - 1) {
+        doc.addPage();
+        yPosition = margin;
+      }
+    });
+  
+    // Nutrition Plan Table
+    const nutritionData = analysisResults.nutrition.mealPlan.slice(0, 5).map(meal => [meal]);
     doc.setFontSize(12);
-    doc.text(`Risk Score: ${analysisResults.riskScore.toFixed(1)}%`, 20, 30);
-    doc.text(`Lifespan Estimate: ${analysisResults.lifespan.toFixed(1)} years`, 20, 40);
-    doc.text(`Metabolic Age: ${analysisResults.metabolicAge.toFixed(1)}`, 20, 50);
-    doc.text(`Recovery Capacity: ${analysisResults.recoveryScore}%`, 20, 60);
+    doc.setTextColor(primaryColor);
+    doc.text(`${translations[lang]?.nutrition_plan || 'Nutrition Plan'}:`, margin, yPosition);
+    yPosition += 10;
     
-    doc.save('quick-health-summary.pdf');
+    doc.setFontSize(10);
+    doc.setTextColor(0);
+    doc.autoTable({
+      startY: yPosition,
+      head: [['Recommended Meals']],
+      body: nutritionData,
+      theme: 'grid',
+      headStyles: { fillColor: primaryColor },
+      margin: { left: margin }
+    });
+    yPosition = doc.lastAutoTable.finalY + 10;
+  
+    // Signature Section
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.5);
+    doc.line(margin, yPosition, 80, yPosition);
+    doc.text(`${translations[lang]?.signature || 'Signature'}:`, margin, yPosition + 10);
+    doc.text(`${translations[lang]?.date || 'Date'}: ________________`, 100, yPosition + 10);
+  
+    // Add Footer
+    const pageCount = doc.getNumberOfPages();
+    for(let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(100);
+      doc.text(`Page ${i} of ${pageCount}`, 190, 287, null, null, 'right');
+      doc.text('HealthGuard AI - Predictive Healthcare Analytics', margin, 287);
+      doc.text('Not a medical diagnosis - Consult your physician', 105, 287, null, null, 'center');
+    }
+  
+    doc.save(`HealthGuard-Report-${userData.name || date}.pdf`);
   };
 
   // --- Form Submission ---
@@ -469,11 +619,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 });
 
-// --- Core Health Calculation Functions ---
+// --- Core Health Calculations ---
 function calculateBMI(data) {
   const heightMeters = data.heightUnit === 'cm' 
     ? data.height / 100 
     : data.height * 0.3048;
+  if (heightMeters <= 0) return 25; // Fallback
   return data.weight / (heightMeters ** 2);
 }
 
@@ -485,6 +636,12 @@ function calculateRiskScore(data, bmi) {
   score += data.stress * 0.8;
   score += data.sleep < 6 ? 15 : data.sleep < 8 ? 5 : 0;
   
+  score += data.sleep < 6 ? 10 : 0;
+  score += data.stress > 7 ? 15 : 0;
+  score += data.environment === 'city' ? 5 : 0;
+  score += data.transport === 'car' ? 3 : 0;
+  score += (data.profession || '').match(/desk|office/i) ? 5 : 0;
+
   if (bmi > 30) score += 20;
   else if (bmi > 25) score += 10;
   else if (bmi < 18.5) score += 15;
@@ -498,22 +655,18 @@ function calculateLifespan(data, bmi) {
   base += data.exercise * 0.6;
   base += data.sleep >= 7 ? 2.3 : 0;
   
-  // BMI impact
+  base += data.exerciseType.includes('cardio') ? 0.5 : 0;
+  base += data.nutrition >= 7 ? 1.2 : 0;
+  base -= (data.profession || '').match(/night shift/i) ? 0.7 : 0;
+
   if (bmi > 25) base -= (bmi - 25) * 0.3;
-  
-  // Lifestyle factors
   base -= data.alcohol * 0.4;
   base -= data.stress * 0.2;
-  
-  // Environmental factors
   base += data.transport === 'walk' ? 1.2 : 0;
   base -= data.environment === 'city' ? 1.8 : 0;
-  
-  // Dietary bonuses
   base += data.diet === 'vegetarian' ? 1.2 : 0;
   base += data.diet === 'vegan' ? 1.5 : 0;
   
-  // Regional adjustments
   const regionMultipliers = {
     asia: 1.1,
     europe: 0.9,
@@ -522,9 +675,8 @@ function calculateLifespan(data, bmi) {
   };
   base *= regionMultipliers[data.region] || 1.0;
 
-  // Professional impact
-  if (data.profession.match(/manual|labor|fitness/i)) base += 0.8;
-  if (data.profession.match(/desk|office/i)) base -= 0.5;
+  if ((data.profession || '').match(/manual|labor|fitness/i)) base += 0.8;
+  if ((data.profession || '').match(/desk|office/i)) base -= 0.5;
 
   return Math.min(Math.max(base, data.age + 5), 120);
 }
@@ -534,10 +686,11 @@ function calculateCardiovascularHealth(data) {
     exercise: data.exercise * 2.5,
     nutrition: data.nutrition * 1.8,
     stress: (10 - data.stress) * 1.2,
-    sleep: Math.min(data.sleep, 9) * 1.5,
+    sleep: Math.min(data.sleep, 8) * 1.2,
     bmi: (25 - Math.abs(25 - calculateBMI(data))) * 0.8,
     alcohol: (3 - data.alcohol) * 1.5,
-    smoking: data.smoking === 'never' ? 10 : 0
+    smoking: data.smoking === 'never' ? 10 : 0,
+    activityVariety: (data.exerciseType || []).length * 2
   };
 
   const score = Object.values(factors).reduce((sum, val) => sum + val, 0);
@@ -549,7 +702,10 @@ function calculateCardiovascularHealth(data) {
            score >= 40 ? 'Fair' : 'Poor',
     risks: [
       score < 60 && 'High blood pressure risk',
-      score < 50 && 'Potential cholesterol issues'
+      score < 50 && 'Potential cholesterol issues',
+      data.nutrition < 4 && 'Low diet quality',
+      data.alcohol > 1 && 'Alcohol consumption',
+      data.transport === 'car' && 'Sedentary commuting'
     ].filter(Boolean)
   };
 }
@@ -570,12 +726,66 @@ function calculateRecoveryScore(data) {
   score += (data.sleep - 6) * 5;
   score += data.exercise * 3;
   score -= data.alcohol * 6;
+  score += (data.exerciseType || []).includes('flexibility') ? 5 : 0;
+  score -= (data.exerciseType || []).includes('HIIT') ? 10 : 0;
+  score += data.environment === 'countryside' ? 5 : 0;
   return Math.max(Math.min(score, 100), 0);
 }
 
 // --- Helper Functions ---
+function randomChoice(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function getSupplements(diet) {
+  const supplements = {
+    vegan: ['B12', 'Iron', 'Omega-3'],
+    vegetarian: ['B12', 'Zinc'],
+    omnivore: ['Vitamin D'],
+    other: ['Multivitamin']
+  };
+  return supplements[diet] || [];
+}
+
+function generateWeeklySchedule(data) {
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  return days.map(day => ({
+    day,
+    activity: (data.exerciseType || ['general'])[Math.floor(Math.random() * (data.exerciseType?.length || 1))] || 'rest',
+    duration: 30 + (data.exercise * 10)
+  }));
+}
+
+function calculateIntensity(data) {
+  return (data.exerciseType || []).length * data.exercise;
+}
+
+function getExerciseTips(frequency) {
+  return frequency >= 3
+    ? ['Excellent! Maintain consistency']
+    : frequency >= 2
+      ? ['Add one more session weekly']
+      : frequency >= 1
+        ? ['Start with 2 sessions/week']
+        : ['Begin with short daily walks'];
+}
+
+function generateMealSchedule(dailyMealPlan) {
+  return Object.entries(dailyMealPlan).map(([mealType, description]) => 
+    `${mealType}: ${description}`
+  );
+}
+
 function getRecoveryTips(score) {
   if (score >= 85) return 'Excellent recovery capacity! Maintain your current routine.';
   if (score >= 60) return 'Good recovery. Consider adding relaxation techniques.';
   return 'Focus on improving sleep quality and stress management.';
+}
+
+function getRecoveryTipsArray(exerciseTypes = []) {
+  const tips = [];
+  if (exerciseTypes.includes('HIIT')) tips.push('Allow 48h recovery after HIIT');
+  if (exerciseTypes.includes('strength')) tips.push('Use foam rolling for muscle recovery');
+  if (exerciseTypes.includes('cardio')) tips.push('Hydrate well after cardio sessions');
+  return tips.length > 0 ? tips : ['General recovery: Stretch daily'];
 }
