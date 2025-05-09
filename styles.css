@@ -1,342 +1,759 @@
-:root {
+/* ==========================================================================
+   VARIABLES & THEMES
+   ========================================================================== */
+   :root {
+    /* Light theme colors */
     --primary: #2A5C82;
     --secondary: #5DA9E9;
     --danger: #E63946;
     --success: #2A9D8F;
-    --text: #333;
+    --text: #333333;
     --background: #f5f7fa;
+    --surface: #ffffff;
+    --muted: #6c757d;
+    --warning: #ffc107;
+    --info: #17a2b8;
+    --shadow: rgba(0, 0, 0, 0.1);
+  
+    /* New metrics colors */
+    --metric-1: #2A9D8F;
+    --metric-2: #5DA9E9;
+    --metric-3: #E63946;
+    --metric-4: #FF9F1C;
+  }
+  
+/* ==========================================================================
+   DARK THEME OVERRIDES
+   ========================================================================== */
+   html[data-theme="dark"] {
+    --text: #e8e8e8;
+    --background: #2d2d2d;
+    --surface: #383838;
+    --muted: #9e9e9e;
+    --shadow: rgba(0, 0, 0, 0.3);
+    
+    /* Softened accent colors */
+    --primary: #3a7ca5;
+    --secondary: #6b9fc7;
+    --success: #2ba189;
+    --danger: #d1545a;
+    --warning: #e0a740;
+    
+    /* Metric colors */
+    --metric-1: #1f8073;  /* Muted teal */
+    --metric-2: #4a8bb8;  /* Soft blue */
+    --metric-3: #b84a4a;  /* Muted coral */
+    --metric-4: #c78d4a;  /* Soft orange */
+  }
+
+  /* Additional dark mode specific adjustments */
+html[data-theme="dark"] {
+  /* Gradient backgrounds */
+  .hero {
+    background: linear-gradient(135deg, #2a4a5e, #3a6b8a);
+  }
+  
+  /* Card surfaces */
+  .metric-card {
+    background: #3a3a3a;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Borders and separators */
+  .lifespan-factors,
+  .nutrition-tips {
+    border-color: #4a4a4a;
+  }
+  
+  /* Input fields */
+  .input-group input,
+  .input-group select {
+    background: #2d2d2d;
+    border-color: #4a4a4a;
+  }
+  
+  /* Meal plan items */
+  .meal-plan li {
+    background: #2d2d2d;
+  }
+  
+  /* Factors and tips */
+  .factor,
+  .nutrition-tips .tip {
+    background: #2d2d2d;
+  }
+  
+  /* Range input */
+  input[type="range"] {
+    background: #4a4a4a;
+  }
+  
+  /* Scrollbar (where supported) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    background: #2d2d2d;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #4a4a4a;
+    border-radius: 4px;
+  }
 }
 
-* {
+/* Add smooth transitions */
+.metric-card,
+.input-group input,
+.input-group select,
+.btn {
+  transition: all 0.3s ease;
+}
+  
+  * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Poppins', 'Noto Naskh Arabic', 'Noto Sans SC', 'Noto Sans Devanagari', sans-serif;
-}
-
-body {
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  body {
     background: var(--background);
     color: var(--text);
-    line-height: 1.6;
-}
-
-/* Right-to-Left languages support */
-[lang="ar"] body {
-    direction: rtl;
-    text-align: right;
-    font-family: 'Noto Naskh Arabic', 'Tahoma', sans-serif;
-}
-
-[lang="ar"] .form-navigation {
-    justify-content: flex-start;
-}
-
-[lang="ar"] .language-switcher {
-    right: auto;
-    left: 20px;
-}
-
-.language-switcher {
+    line-height: 1.5;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+  
+  /* ==========================================================================
+     ACCESSIBILITY & FOCUS
+     ========================================================================== */
+  :focus {
+    outline: 2px dashed var(--secondary);
+    outline-offset: 2px;
+  }
+  
+  /* ==========================================================================
+     LAYOUT & UTILITIES
+     ========================================================================== */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  .language-switcher {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    top: 1rem;
+    right: 1rem;
+    background: var(--surface);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px var(--shadow);
     z-index: 1000;
-    background: rgba(255,255,255,0.9);
-    padding: 8px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.language-switcher select {
-    padding: 8px 12px;
-    border-radius: 5px;
-    border: 1px solid var(--primary);
+  }
+  
+  .language-switcher select {
     background: transparent;
+    border: 1px solid var(--primary);
+    border-radius: 0.25rem;
     color: var(--primary);
-    font-size: 1rem;
-}
-
-.hero {
+    padding: 0.5rem;
+  }
+  
+  /* Dark/Light mode toggle */
+  #themeToggle {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    background: var(--surface);
+    border: none;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px var(--shadow);
+    cursor: pointer;
+    color: var(--primary);
+    z-index: 1000;
+  }
+  
+  /* ==========================================================================
+     HERO
+     ========================================================================== */
+  .hero {
     background: linear-gradient(135deg, var(--primary), var(--secondary));
-    color: white;
+    color: #fff;
     padding: 4rem 2rem;
     text-align: center;
-    margin-bottom: 2rem;
     position: relative;
-    overflow: hidden;
-}
-
-.hero-content {
-    max-width: 1200px;
-    margin: 0 auto;
+  }
+  
+  .hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .hero p {
+    font-size: 1.25rem;
+  }
+  
+  /* ==========================================================================
+     FORM & MULTI-STEP
+     ========================================================================== */
+  .analysis-form {
+    background: var(--surface);
+    border-radius: 1.25rem;
+    padding: 2rem;
+    box-shadow: 0 10px 30px var(--shadow);
+    margin-top: -4rem;
     position: relative;
-    z-index: 1;
-}
-
-.animated-medical-icons {
-    margin-top: 2rem;
+    transition: background 0.3s ease;
+  }
+  
+  .progress-indicator {
     display: flex;
     justify-content: center;
-    gap: 2rem;
-}
-
-.animated-medical-icons i {
-    font-size: 2.5rem;
-    animation: float 3s ease-in-out infinite;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-
-.analysis-form {
-    background: white;
-    border-radius: 20px;
-    padding: 2rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    margin-top: -80px;
-    position: relative;
-}
-
-.form-step {
-    display: none;
-    animation: fadeIn 0.5s ease;
-}
-
-.form-step.active {
-    display: block;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin: 2rem 0;
-}
-
-.input-group {
-    position: relative;
-}
-
-.input-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--primary);
-    font-weight: 500;
-}
-
-.input-group input,
-.input-group select {
-    width: 100%;
-    padding: 0.8rem;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 1rem;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .progress-indicator .step {
+    width: 30px;
+    height: 5px;
+    background: var(--muted);
+    border-radius: 3px;
     transition: all 0.3s ease;
-}
-
-.input-group input:focus,
-.input-group select:focus {
-    border-color: var(--secondary);
-    outline: none;
-    box-shadow: 0 0 8px rgba(93,169,233,0.3);
-}
-
-.btn {
+  }
+  
+  .progress-indicator .step.active {
     background: var(--secondary);
-    color: white;
-    border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 8px;
-    cursor: pointer;
+    width: 45px;
+  }
+  
+  .form-step {
+    display: none;
+    opacity: 0;
+    transform: translateY(20px);
     transition: all 0.3s ease;
+  }
+  
+  .form-step.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .input-group input,
+  .input-group select {
+    padding: 0.75rem;
+    border: 2px solid var(--muted);
+    border-radius: 0.5rem;
+    background: var(--background);
+    color: var(--text);
+    transition: border-color 0.3s ease;
+  }
+  
+  .input-group input:focus,
+  .input-group select:focus {
+    border-color: var(--secondary);
+  }
+  
+  /* Tooltip text */
+  .input-tooltip {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  
+  /* Validation styling */
+  .validation-message {
+    color: var(--danger);
+    font-size: 0.85rem;
+    display: none;
+  }
+  
+  .input-group.invalid .validation-message {
+    display: block;
+  }
+  
+  .input-group.invalid input,
+  .input-group.invalid select {
+    border-color: var(--danger);
+    animation: shake 0.3s ease;
+  }
+  
+  /* Range inputs */
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  
+  input[type="range"] {
+    width: 100%;
+    appearance: none;
+    height: 6px;
+    background: var(--muted);
+    border-radius: 3px;
+  }
+  
+  input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--secondary);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  /* Consent */
+  .consent-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* ==========================================================================
+     BUTTONS
+     ========================================================================== */
+  .btn {
+    background: var(--secondary);
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-}
-
-.btn:hover {
-    opacity: 0.9;
+  }
+  
+  .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(93,169,233,0.3);
-}
-
-.form-navigation {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    margin-top: 2rem;
-}
-
-.result-card {
-    background: white;
-    border-radius: 20px;
+    box-shadow: 0 4px 12px var(--shadow);
+  }
+  
+  /* Secondary button style */
+  .btn.secondary {
+    background: transparent;
+    border: 2px solid var(--secondary);
+    color: var(--secondary);
+  }
+  
+  /* ==========================================================================
+     RESULTS & DASHBOARD
+     ========================================================================== */
+  .result-card {
+    background: var(--surface);
     padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px var(--shadow);
     margin-top: 2rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    display: none;
-    animation: slideIn 0.5s ease;
-}
-
-.risk-meter {
-    width: 100%;
-    height: 20px;
-    background: #eee;
-    border-radius: 10px;
+    transition: background 0.3s ease;
+  }
+  
+  .risk-meter {
+    background: var(--muted);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    height: 1rem;
+    margin: 1rem 0;
+    position: relative;
+  }
+  
+  .risk-fill {
+    height: 100%;
+    background: linear-gradient(90deg, 
+      var(--success) 0%, 
+      var(--warning) 50%, 
+      var(--danger) 100%);
+    transition: width 0.5s ease;
+  }
+  
+  /* Health Metrics Grid */
+  .health-metrics-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin: 2rem 0;
+  }
+  
+  .metric-card {
+    background: var(--background);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-left: 4px solid var(--metric-1);
+  }
+  
+  .metric-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px var(--shadow);
+  }
+  
+  .metric-card i {
+    font-size: 1.5rem;
+    color: var(--metric-1);
+    margin-bottom: 1rem;
+    display: block;
+  }
+  
+  /* Specific metric card styles */
+  .metric-card.cardiovascular { border-color: var(--metric-1); }
+  .metric-card.longevity { border-color: var(--metric-2); }
+  .metric-card.metabolic { border-color: var(--metric-3); }
+  .metric-card.nutrition { border-color: var(--metric-4); }
+  
+  .metric-score {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 1rem 0;
+    color: var(--metric-1);
+  }
+  
+  .metric-risk ul {
+    list-style: none;
+    padding-left: 1rem;
+  }
+  
+  .metric-risk li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .metric-risk li::before {
+    content: "⚠️";
+    position: absolute;
+    left: 0;
+  }
+  
+  /* Nutrition Plan */
+  .calorie-target {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--metric-4);
+    margin: 1rem 0;
+  }
+  
+  .meal-plan ul {
+    list-style: none;
+  }
+  
+  .meal-plan li {
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    background: var(--surface);
+    border-radius: 0.5rem;
+  }
+  
+  /* Recovery Meter */
+  .recovery-meter {
+    height: 8px;
+    background: var(--muted);
+    border-radius: 4px;
     overflow: hidden;
     margin: 1rem 0;
-}
-
-.risk-fill {
+  }
+  
+  .recovery-meter > div {
     height: 100%;
-    background: linear-gradient(90deg, var(--success), var(--danger));
+    background: linear-gradient(90deg, var(--danger), var(--success));
     transition: width 0.5s ease;
-}
-
-.recommendations-grid {
+  }
+  
+  /* Exercise Plan */
+  .weekly-exercise ul {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin: 2rem 0;
-}
-
-.recommendation-card {
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 15px;
+    gap: 0.5rem;
+  }
+  
+  .weekly-exercise li {
+    padding: 0.75rem;
+    background: var(--surface);
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .weekly-exercise li::before {
+    content: "🏋️";
+    font-size: 1.25rem;
+  }
+  
+  /* Lifespan Factors */
+  .lifespan-factors {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .factor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.5rem;
+  }
+  
+  .factor {
+    padding: 0.5rem;
+    background: var(--surface);
+    border-radius: 0.5rem;
     text-align: center;
-    transition: transform 0.3s ease;
-}
-
-.recommendation-card:hover {
-    transform: translateY(-5px);
-}
-
-.recommendation-card i {
-    font-size: 2rem;
-    color: var(--secondary);
-    margin-bottom: 1rem;
-}
-
-.features {
+    font-size: 0.9rem;
+  }
+  
+  /* PDF Generator */
+  .pdf-generator {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  /* ==========================================================================
+     FEATURES & FOOTER
+     ========================================================================== */
+  .features {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     margin: 4rem 0;
-}
-
-.feature-card {
-    background: white;
+  }
+  
+  .feature-card {
+    background: var(--surface);
     padding: 2rem;
-    border-radius: 15px;
+    border-radius: 1rem;
     text-align: center;
-    transition: transform 0.3s ease;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.feature-card:hover {
-    transform: translateY(-10px);
-}
-
-.feature-icon {
+    box-shadow: 0 5px 20px var(--shadow);
+    transition: transform 0.2s ease;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-8px);
+  }
+  
+  .feature-icon {
     font-size: 2.5rem;
     color: var(--primary);
     margin-bottom: 1rem;
-}
-
-.disclaimer {
-    background: #ffeeba;
-    color: #856404;
-    padding: 1rem;
-    border-radius: 10px;
-    margin: 2rem 0;
-    font-size: 0.9rem;
-}
-
-footer {
+  }
+  
+  footer {
     background: var(--primary);
-    color: white;
+    color: #fff;
     text-align: center;
     padding: 2rem;
     margin-top: 4rem;
+  }
+
+  /* ==========================================================================
+   HEALTH METRICS GRID
+   ========================================================================== */
+.health-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
 }
 
-.pdf-generator {
-    margin-top: 2rem;
-    text-align: center;
+.metric-card {
+  background: var(--surface);
+  padding: 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px var(--shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Animations */
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+.metric-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px var(--shadow);
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+/* Longevity Estimate Card */
+.metric-card.longevity {
+  border-top: 4px solid var(--metric-2);
+  padding-top: 1.25rem;
 }
 
-@keyframes slideIn {
-    from { opacity: 0; transform: translateX(50px); }
-    to { opacity: 1; transform: translateX(0); }
+.metric-card.longevity i {
+  color: var(--metric-2);
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .container {
-        padding: 1rem;
+#lifespanEstimate {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: var(--metric-2);
+  margin: 1rem 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+#lifespanEstimate .unit {
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+.lifespan-factors {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--background);
+}
+
+.lifespan-factors h5 {
+  margin-bottom: 1rem;
+  color: var(--muted);
+}
+
+.factor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.factor {
+  background: var(--background);
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Nutrition Plan Card */
+.metric-card.nutrition {
+  border-top: 4px solid var(--metric-4);
+  padding-top: 1.25rem;
+}
+
+.metric-card.nutrition i {
+  color: var(--metric-4);
+}
+
+.calorie-target {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--metric-4);
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.calorie-target i {
+  font-size: 1.5rem;
+}
+
+.meal-plan {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--background);
+  border-radius: 12px;
+}
+
+.meal-plan ul {
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.meal-plan li {
+  padding: 0.75rem;
+  background: var(--surface);
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nutrition-tips {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--background);
+}
+
+.nutrition-tips .tip {
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  background: var(--background);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nutrition-tips .tip::before {
+  content: "✔";
+  color: var(--success);
+}
+  
+  /* ==========================================================================
+     ANIMATIONS & KEYFRAMES
+     ========================================================================== */
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-8px); }
+  }
+  
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25%     { transform: translateX(-5px); }
+    75%     { transform: translateX(5px); }
+  }
+  
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+  
+  /* ==========================================================================
+     RESPONSIVE
+     ========================================================================== */
+  @media (max-width: 768px) {
+    .form-grid,
+    .health-metrics-grid,
+    .features {
+      grid-template-columns: 1fr;
     }
     
-    .form-grid {
-        grid-template-columns: 1fr;
+    .container {
+      padding: 1rem;
     }
     
     .hero {
-        padding: 3rem 1rem;
-    }
-    
-    .features, .recommendations-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .form-navigation {
-        flex-direction: column;
-    }
-    
-    .btn {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .hero h1 {
-        font-size: 2rem;
-    }
-    
-    .hero p {
-        font-size: 1rem;
+      padding: 3rem 1rem;
     }
     
     .analysis-form {
-        padding: 1.5rem;
-        margin-top: -60px;
+      margin-top: -3rem;
+      padding: 1.5rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .hero h1 { font-size: 2rem; }
+    .hero p  { font-size: 1rem; }
+    
+    .metric-card {
+      padding: 1rem;
     }
     
-    .recommendation-card {
-        padding: 1rem;
+    .metric-score {
+      font-size: 1.5rem;
     }
-    
-    #lifespanEstimate {
-        font-size: 1.5rem;
-    }
-}
-
-.form-step {
-    transition: all 0.3s ease;
-    opacity: 1;
-    transform: translateY(0);
-}
+  }
